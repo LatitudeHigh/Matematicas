@@ -1,0 +1,12 @@
+canvas {
+    border: 10px solid #afb0fa ;
+    display: inline-block;
+    vertical-align: top;
+  
+  
+}
+img{
+    width:150px;
+    height:150px;
+}
+/* REMOVE if you don't want to show console */
