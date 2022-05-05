@@ -2,16 +2,16 @@ var PADDLE_WIDTH = 80;
 var PADDLE_HEIGHT = 15;
 var PADDLE_OFFSET = 10;
 var BALL_RADIUS = 25;
-var NUM_ROWS = 8;
+var NUM_ROWS = 1;
 var BRICK_TOP_OFFSET = 40;
 var BRICK_SPACING = 2;
-var NUM_BRICKS_PER_ROW = 8;
+var NUM_BRICKS_PER_ROW = 1;
 var BRICK_HEIGHT = 10;
 var BRICK_WIDTH;
 
 var POINTS_PER_BRICK = 5;
-var POINTS_PER_WRONG_ANSWER = 1;
-var NUM_ATTEMPTS_PER_QUESTION = 4;
+var POINTS_PER_WRONG_ANSWER = 3;
+var NUM_ATTEMPTS_PER_QUESTION = 3;
 
 var paddle, ball;
 var vx;
@@ -28,6 +28,8 @@ var instructions;
 var text;
 var text2;
 var score = 0;
+
+var level = 1;
 
 
 function scoreCounter(){
@@ -163,10 +165,21 @@ function getCollidingObject() {
 }
 //this function inserts math into the game once the ball hits a brick and won't let them leave until the answer is right
 function doMath() {
-
   var tries = 0;
-  var x = Randomizer.nextInt(0, 15);
-  var y = Randomizer.nextInt(0, 30);
+  var x, y;
+  if(level == 1) {
+      x = Randomizer.nextInt(0, 5);
+      y = Randomizer.nextInt(0, 5);
+  } else if(level == 2) {
+      x = Randomizer.nextInt(0,12);
+      y = Randomizer.nextInt(0,12);
+  } else if(level == 3) {
+      x = Randomizer.nextInt(2,12);
+      y = Randomizer.nextInt(2,12);
+  } else {
+      x = Randomizer.nextInt(6,18);
+      y = Randomizer.nextInt(6,18);
+  }
   var answer = x * y;
 
   var response = parseInt(prompt("What is " + x + " x " + y));
@@ -215,12 +228,21 @@ function drawGameWon() {
   text.setPosition(getWidth() / 2 - text.getWidth() / 2, getHeight() / 2);
   text.setColor(YELLOW2);
   add(text);
+
+  var nextLevel = new Text("Click for the next level!", "12pt Arial");
+  nextLevel.setPosition(getWidth() / 2 - nextLevel.getWidth() / 2, getHeight() / 2 + text.getHeight());
+  nextLevel.setColor(YELLOW2);
+  add(nextLevel);
 }
 //this fucntion checks if you have destroyed all bricks to then say that you won
 function checkWin() {
   if (bricksLeft == 0) {
     stopTimer(draw);
     drawGameWon();
+    gameRunning = false;
+    NUM_ROWS += 1;
+    NUM_BRICKS_PER_ROW += 1;
+    level += 1;
   }
 }
 //This function checks your lives and will say game over if lost all 3 lives
@@ -286,16 +308,12 @@ function drawStartScreen() {
   text2 = new Text("& have the ball hit the bricks using the paddle", "15pt Arial");
   text2.setPosition(getWidth() / 2 - text2.getWidth() / 2, getHeight() / 1.8);
   text2.setColor(Color.yellow);
-  add(text2
-      
-  );
-  
-  
-
+  add(text2);
 }
 
 function startGame(e) {
   if (!gameRunning) {
+    bricksLeft = NUM_ROWS * NUM_BRICKS_PER_ROW;
     removeAll();
     setup();
     setTimer(draw, 40);
