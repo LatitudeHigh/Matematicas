@@ -1,13 +1,18 @@
 var PADDLE_WIDTH = 80;
 var PADDLE_HEIGHT = 15;
 var PADDLE_OFFSET = 10;
-var BALL_RADIUS = 20;
+var BALL_RADIUS = 25;
 var NUM_ROWS = 8;
-var BRICK_TOP_OFFSET = 10;
+var BRICK_TOP_OFFSET = 40;
 var BRICK_SPACING = 2;
 var NUM_BRICKS_PER_ROW = 8;
 var BRICK_HEIGHT = 10;
 var BRICK_WIDTH;
+
+var POINTS_PER_BRICK = 5;
+var POINTS_PER_WRONG_ANSWER = 1;
+var NUM_ATTEMPTS_PER_QUESTION = 4;
+
 var paddle, ball;
 var vx;
 var vy = 8;
@@ -22,6 +27,21 @@ var gameRunning = false;
 var instructions;
 var text;
 var text2;
+var score = 0;
+
+
+function scoreCounter(){
+  scoreCount.setText(score);
+  scoreCount.setColor(RANDOM);
+  scoreCount.setPosition(0,scoreCount.getHeight());
+  add(scoreCount)
+}
+
+function ballHitBrick(ball, brick) {
+    brick.kill();
+    score += 10;
+    scoreText.setText('Points: '+score);
+}
 
 // this code turns the ball into different colors
 function paintBall() {
@@ -97,6 +117,8 @@ function setSpeeds() {
 
 //this function set's up all codes to be used 
 function setup() {
+  scoreCount = new Text(score);
+  scoreCounter();
   drawBricks();
   setupPaddle();
   setupBall();
@@ -139,16 +161,21 @@ function getCollidingObject() {
   var bottomRight = getElementAt(right, bottom);
   if (bottomRight) return bottomRight;
 }
-//this function inserts math into the game once the ball hits a brick and won let them leave until the answer is right
+//this function inserts math into the game once the ball hits a brick and won't let them leave until the answer is right
 function doMath() {
 
-
+  var tries = 0;
   var x = Randomizer.nextInt(0, 15);
   var y = Randomizer.nextInt(0, 30);
   var answer = x * y;
 
   var response = parseInt(prompt("What is " + x + " x " + y));
   while (response != answer) {
+    score -= POINTS_PER_WRONG_ANSWER;
+    tries += 1;
+    if(tries == NUM_ATTEMPTS_PER_QUESTION) {
+        return;
+    }
     var response = parseInt(prompt("Try again: what is " + x + " x " + y));
   }
 }
@@ -156,13 +183,21 @@ function doMath() {
 function checkObjects() {
   var elem = getCollidingObject();
   if (elem != null) {
-    if (elem != paddle) {
+    if (elem != paddle && elem != scoreCount) {
       doMath();
       remove(elem);
       vy = -vy;
       bricksLeft--;
-    } else {
+      score += POINTS_PER_BRICK;
+      scoreCounter();
+    } else if(elem != scoreCount) {
       vy = -Math.abs(vy);
+      console.log(ball.getX() + " " + paddle.getX() + " " + paddle.getWidth());
+      if (ball.getX() >= paddle.getX() && ball.getX() < paddle.getX() + paddle.getWidth() / 3) {
+        vx -= 3;
+      } else if (ball.getX() >= paddle.getX() + 2 * paddle.getWidth() / 3) {
+        vx += 3;
+      }
     }
   }
 }
@@ -215,6 +250,7 @@ function draw() {
   ball.move(vx, vy);
   checkWin();
   checkLose();
+  
 }
 //this function is what limits the paddle in order to stay between the 2 walls
 function myMove(event) {
@@ -235,46 +271,43 @@ function setColors() {
   YELLOW2 = new Color(250, 228, 27);
   RANDOM = Randomizer.nextColor();
 }
-function music(){
-  song = new Audio("https://static.codehs.com/audio/tamagotamagotamagotchi.m4a");
-  song.play();
-}
 
-  
+
 function drawStartScreen() {
-   instructions = new Text("Click to Start","30pt Arial");
+  instructions = new Text("Click to Start", "30pt Arial");
   instructions.setPosition(getWidth() / 2 - instructions.getWidth() / 2, getHeight() / 2.8);
-  instructions.setColor(Color.white);
+  instructions.setColor(Color.yellow);
   add(instructions);
 
-  text = new Text("you must try not to get the ball into the void","15pt Arial");
-  text.setPosition(getWidth() / 2 - text.getWidth() / 2, getHeight()/2);
-  text.setColor(Color.white);
+  text = new Text("you must try not to get the ball into the void", "15pt Arial");
+  text.setPosition(getWidth() / 2 - text.getWidth() / 2, getHeight() / 2);
+  text.setColor(Color.yellow);
   add(text);
-  text2 = new Text("& have the ball hit the bricks using the paddle","15pt Arial");
-  text2.setPosition(getWidth() / 2 - text2.getWidth() / 2, getHeight()/1.8);
-  text2.setColor(Color.white);
-  add(text2);
+  text2 = new Text("& have the ball hit the bricks using the paddle", "15pt Arial");
+  text2.setPosition(getWidth() / 2 - text2.getWidth() / 2, getHeight() / 1.8);
+  text2.setColor(Color.yellow);
+  add(text2
+      
+  );
   
+  
+
 }
 
 function startGame(e) {
-  if(!gameRunning) {
+  if (!gameRunning) {
     removeAll();
     setup();
-    setTimer(draw, 50);
+    setTimer(draw, 40);
     mouseMoveMethod(myMove);
     gameRunning = true;
   }
 }
+
 
 //this is the fucntion where it ables  all functions to play and create our game, Matematicas
 function start() {
   drawStartScreen();
   setColors();
   mouseClickMethod(startGame);
-  music();
 }
-
-
-
