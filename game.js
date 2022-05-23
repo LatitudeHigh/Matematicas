@@ -2,10 +2,10 @@ var PADDLE_WIDTH = 80;
 var PADDLE_HEIGHT = 15;
 var PADDLE_OFFSET = 10;
 var BALL_RADIUS = 25;
-var NUM_ROWS = 1;
+var NUM_ROWS = 3;
 var BRICK_TOP_OFFSET = 40;
 var BRICK_SPACING = 2;
-var NUM_BRICKS_PER_ROW = 1;
+var NUM_BRICKS_PER_ROW = 3;
 var BRICK_HEIGHT = 10;
 var BRICK_WIDTH;
 
@@ -27,10 +27,13 @@ var gameRunning = false;
 var instructions;
 var text;
 var text2;
+var text3;
 var score = 0;
 
 var level = 1;
-
+var lives = 3;
+var livesText;
+var livesLostText;
 
 function scoreCounter(){
   scoreCount.setText(score);
@@ -177,8 +180,8 @@ function doMath() {
       x = Randomizer.nextInt(2,12);
       y = Randomizer.nextInt(2,12);
   } else {
-      x = Randomizer.nextInt(6,18);
-      y = Randomizer.nextInt(6,18);
+      x = Randomizer.nextInt(6,69);
+      y = Randomizer.nextInt(6,69);
   }
   var answer = x * y;
 
@@ -247,6 +250,7 @@ function checkWin() {
 }
 //This function checks your lives and will say game over if lost all 3 lives
 function checkLose() {
+
   /* This is unfortunately confusing now to
      play multiple times... */
   if (gameOver) {
@@ -309,6 +313,12 @@ function drawStartScreen() {
   text2.setPosition(getWidth() / 2 - text2.getWidth() / 2, getHeight() / 1.8);
   text2.setColor(Color.yellow);
   add(text2);
+  text3= new Text("Note: You only have three lives", "15pt Arial");
+  text3.setPosition(getWidth() / 2 - text2.getWidth() / 2, getHeight() / 1.6);
+  text3.setColor(Color.yellow);
+  add(text3);
+ 
+ 
 }
 
 function startGame(e) {
@@ -316,7 +326,7 @@ function startGame(e) {
     bricksLeft = NUM_ROWS * NUM_BRICKS_PER_ROW;
     removeAll();
     setup();
-    setTimer(draw, 40);
+    setTimer(draw, 36);
     mouseMoveMethod(myMove);
     gameRunning = true;
   }
